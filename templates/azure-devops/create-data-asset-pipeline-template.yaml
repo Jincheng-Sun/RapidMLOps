@@ -1,0 +1,53 @@
+parameters:
+  - name: environment
+    type: string
+    default: "dev"
+  - name: variableFile
+    type: string
+    default: "azure-pipelines-variables.yaml"
+
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+      - staging
+    exclude:
+      - features/*
+  paths:
+    include:
+      - data_asset/*
+
+variables:
+  - template: ${{ parameters.variableFile }}
+
+stages:
+  - stage: CreateDataAssetStage
+    displayName: "Create Data Asset Stage"
+    jobs:
+      - job: CreateDataAssetJob
+        displayName: "Create Data Asset Job"
+        pool: ${{ variables.agentPool }}
+        steps:
+          - checkout: self
+            clean: true
+            path: s/
+            fetchTags: false
+            fetchDepth: 0
+
+          - checkout: LazyMLOps
+            clean: true
+            path: s/templates
+            fetchTags: false
+
+          - template: templates/pipelines/azure-devops/install-requirements.yaml
+            parameters:
+              environment: ${{ parameters.environment }}
+              requirementsFile: ${{ variables.requirementsFile }}
+              devIndexUrl: ${{ variables.devIndexUrl }}
+              stagingIndexUrl: ${{ variables.stagingIndexUrl }}
+              prodIndexUrl: ${{ variables.prodIndexUrl }}
+
+          - template: templates/pipelines/azure-devops/azureml/create-data-asset.yaml
+            parameters:
+              ...

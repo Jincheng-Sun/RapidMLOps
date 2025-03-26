@@ -2,16 +2,16 @@ parameters:
   - name: environment
     type: string
     default: "dev"
-  - name: requirements_file
+  - name: requirementsFile
     type: string
     default: "requirements_azureml.txt"
-  - name: dev_index_url
+  - name: devIndexUrl
     type: string
     default: "https://pypi.org/simple"
-  - name: staging_index_url
+  - name: stagingIndexUrl
     type: string
     default: "https://staging-artifactory.example.com"
-  - name: prod_index_url
+  - name: prodIndexUrl
     type: string
     default: "https://prod-artifactory.example.com"
 
@@ -39,7 +39,7 @@ steps:
     displayName: "Install Python Dependencies"
     env:
       ENVIRONMENT: ${{ parameters.environment }}
-      REQUIREMENTS_FILE: ${{ parameters.requirements_file }}
-      DEV_INDEX_URL: ${{ parameters.dev_index_url }}
-      STAGING_INDEX_URL: ${{ parameters.staging_index_url }}
-      PROD_INDEX_URL: ${{ parameters.prod_index_url }}
+      REQUIREMENTS_FILE: ${{ parameters.requirementsFile }}
+      DEV_INDEX_URL: ${{ parameters.devIndexUrl }}
+      STAGING_INDEX_URL: ${{ parameters.stagingIndexUrl }}
+      PROD_INDEX_URL: ${{ parameters.prodIndexUrl }}

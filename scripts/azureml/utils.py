@@ -1,29 +1,8 @@
-import sys
 import time
 import logging
 
 from azure.identity import AzureCliCredential
 from azure.ai.ml import MLClient
-
-
-def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
-    """Get a logger with the specified name and level. The logger will log to stdout.
-
-    Args:
-        name: str, The name of the logger.
-        level: int, The logging level.
-
-    Returns:
-        logging.Logger: The logger.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    return logger
 
 
 def get_ml_client(logger_name: str, retry_times: int = 5, retry_interval: int = 10, workspace_info: dict = None):

@@ -2,7 +2,8 @@ import yaml
 
 from azure.ai.ml.entities import Data
 
-from scripts.azureml.utils import get_logger, get_ml_client
+from scripts.azureml.utils import get_ml_client
+from scripts.utils import get_logger
 
 logger = get_logger(__name__)
 

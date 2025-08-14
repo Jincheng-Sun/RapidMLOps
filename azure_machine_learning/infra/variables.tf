@@ -119,3 +119,10 @@ variable "virtual_network" {
     resource_subnet_address_prefixes = optional(list(string), ["10.0.1.0/24"])
   })
 }
+
+variable "uaa" {
+  type = object({
+    client_id     = optional(string, "")
+    client_secret = optional(string, "")
+  })
+}

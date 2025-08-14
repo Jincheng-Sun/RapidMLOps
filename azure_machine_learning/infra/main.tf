@@ -337,6 +337,7 @@ resource "azurerm_role_assignment" "rg_reader_uai" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Reader"
   principal_id         = azurerm_user_assigned_identity.uami.principal_id
+  provider             = azurerm.uaa
 }
 
 resource "azurerm_role_assignment" "appi_monitoring_reader_uai" {

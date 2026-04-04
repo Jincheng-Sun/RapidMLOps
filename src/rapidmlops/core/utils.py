@@ -17,22 +17,41 @@ def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     logger.setLevel(level)
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     return logger
 
 
 def get_git_changes():
-    """Returns a dictionary of changed files categorized by status (A, M, D)."""
-    changes = {"A": [], "M": [], "D": []}
-    result = subprocess.run(["git", "diff", "--name-status", "HEAD^", "HEAD"],
-                            capture_output=True,
-                            text=True
-                            )
+    """
+    Executes git diff to find added, modified, and deleted files.
+    Returns a dictionary of {file_path: 'A'/'M'/'D'}
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        # We use HEAD~1 to check against the previous commit.
+        # In a squashed PR merge, this gets the difference since the last merge baseline.
+        result = subprocess.run(
+            ["git", "diff", "--name-status", "HEAD~1", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Git diff failed. Ensure fetchDepth: 0 is set. Error: {e.stderr}")
+        return {}
+
+    changes = {}
     for line in result.stdout.strip().split("\n"):
-        if line:
-            status, file_path = line.split("\t", 1)
-            if status in changes:
-                changes[status].append(file_path)
+        if not line:
+            continue
+        parts = line.split("\t")
+        if len(parts) >= 2:
+            status = parts[0][0]  # Get A, M, D, R, C etc.
+            file_path = parts[-1]
+            changes[file_path] = status
+
     return changes

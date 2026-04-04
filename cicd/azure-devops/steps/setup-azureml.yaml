@@ -1,0 +1,18 @@
+parameters:
+  - name: subscriptionId
+    type: string
+  - name: resourceGroup
+    type: string
+  - name: workspaceName
+    type: string
+
+steps:
+  - script: |
+      echo "Creating AzureML config.json"
+      echo '{
+        "subscription_id": "${{ parameters.subscriptionId }}",
+        "resource_group": "${{ parameters.resourceGroup }}",
+        "workspace_name": "${{ parameters.workspaceName }}"
+      }' > config.json
+      echo "Saved config.json to $(pwd)"
+    displayName: 'Create AzureML Workspace Config'

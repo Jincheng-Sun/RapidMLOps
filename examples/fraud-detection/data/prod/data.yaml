@@ -1,0 +1,4 @@
+$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
+type: uri_folder
+description: "Fraud detection dataset (PROD environment immutable data)"
+path: azureml://datastores/fraud_data_prod/paths/

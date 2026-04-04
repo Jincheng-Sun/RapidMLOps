@@ -1,0 +1,38 @@
+parameters:
+  - name: environment
+    type: string
+  - name: dataName
+    type: string
+    default: ''
+  - name: commitSha
+    type: string
+    default: ''
+  - name: prId
+    type: string
+    default: ''
+  - name: sourceBranch
+    type: string
+    default: ''
+
+steps:
+  - script: |
+      echo "Executing Dynamic Git Diff for Data Assets..."
+      
+      # Build the args
+      CMD_ARGS="--environment ${{ parameters.environment }}"
+      
+      if [ -n "${{ parameters.dataName }}" ]; then
+        CMD_ARGS="$CMD_ARGS --name ${{ parameters.dataName }}"
+      fi
+      if [ -n "${{ parameters.commitSha }}" ]; then
+        CMD_ARGS="$CMD_ARGS --commit_sha ${{ parameters.commitSha }}"
+      fi
+      if [ -n "${{ parameters.prId }}" ]; then
+        CMD_ARGS="$CMD_ARGS --pr_id ${{ parameters.prId }}"
+      fi
+      if [ -n "${{ parameters.sourceBranch }}" ]; then
+        CMD_ARGS="$CMD_ARGS --source_branch ${{ parameters.sourceBranch }}"
+      fi
+      
+      python src/rapidmlops/azureml/data_asset/handler.py $CMD_ARGS
+    displayName: 'Execute handler.py Git Orchestrator'

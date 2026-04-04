@@ -1,0 +1,5 @@
+azure-ai-ml
+azure-identity
+# In a real environment, you would point to your private feed for rapidmlops
+# or use a git+https link for direct installation from the repo.
+rapidmlops

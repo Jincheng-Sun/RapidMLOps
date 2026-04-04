@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RapidMLOps"
+version = "0.1.0"
+description = "Python accelerator for MLOps across AzureDevOps, GitHub, GitLab, Databricks, AzureML, SageMaker"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Jincheng Sun" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    # Core dependencies if any
+]
+
+[project.optional-dependencies]
+azureml = [
+    "azure-ai-ml",
+    "azure-identity"
+]
+databricks = [
+    "databricks-sdk"
+]
+sagemaker = [
+    "sagemaker"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

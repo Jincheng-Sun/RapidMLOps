@@ -1,0 +1,14 @@
+# V1 plan
+# TODO: 1. MLOps - Test data registration pipeline with single workspace + vnet (priority high) 
+# TODO: 2. MLOps - Finish ML environment registration, training job submission, model deployment and model monitoring pipeline feature (priority high)
+# TODO: 3. Infra - Multiple workspaces dev/staging/prod (priority high) 
+# TODO: 5. Infra - Make Virtual Network an option (priority low)
+# TODO: 6. Documentation - README.md update (priority high)
+
+# V2 plan
+# TODO: 1. Infra - Use ML registry (priority high)
+# TODO: 2. MLOps - Design resource promotion workflow and implement promotion pipelines
+
+# V3 plan
+# TODO: 1. Infra - Allow user to mount existing storage account as datastore
+# TODO: 2. Infra - Explore more deployment settings and expose interfaces for more customized deployment plan

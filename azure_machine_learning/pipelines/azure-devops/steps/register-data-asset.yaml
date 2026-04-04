@@ -1,0 +1,13 @@
+parameters:
+  - name: environment
+    type: string
+    default: "dev"
+  - name: dataAssetName
+    type: string
+    default: "my-data-asset"
+  - name: dataAssetDescription
+    type: string
+    default: "This is a sample data asset."
+  - name: dataAssetPath
+    type: string
+    default: "data_asset/my_data_asset.csv"

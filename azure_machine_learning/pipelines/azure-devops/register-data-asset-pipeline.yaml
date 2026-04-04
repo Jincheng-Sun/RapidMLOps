@@ -1,0 +1,72 @@
+parameters:
+  - name: environment
+    type: string
+    default: "dev"
+  - name: requirementsFile
+    type: string
+    default: "requirements.txt"
+  - name: variableFile
+    type: string
+    default: "azure-pipelines-variables.yaml"
+
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+      - staging
+    exclude:
+      - features/*
+  paths:
+    include:
+      - data_asset/*
+
+variables:
+  - template: ${{ parameters.variableFile }}
+
+stages:
+  - stage: CreateDataAssetStage
+    displayName: "Create Data Asset Stage"
+    jobs:
+      - job: CreateDataAssetJob
+        displayName: "Create Data Asset Job"
+        pool: ${{ variables.agentPool }}
+        steps:
+          - checkout: self
+            clean: true
+            path: s/
+            fetchTags: false
+            fetchDepth: 0
+
+          - checkout: LazyMLOps
+            clean: true
+            path: s/templates
+            fetchTags: false
+
+          - template: templates/azure_machine_learning/pipelines/azure-devops/steps/az-login.yaml
+            parameters:
+              clientIdSecretKey: ${{ variables.clientIdSecretKey }}
+              clientSecretSecretKey: ${{ variables.clientSecretSecretKey }}
+              tenantSecretKey: ${{ variables.tenantSecretKey }}
+              subscriptionSecretKey: ${{ variables.subscriptionSecretKey }}
+              azConfigDir: ${{ variables.azConfigDir }}
+
+          - template: templates/azure_machine_learning/pipelines/azure-devops/steps/install-requirements.yaml
+            parameters:
+              environment: ${{ parameters.environment }}
+              requirementsFile: ${{ parameters.requirementsFile }}
+              devIndexUrl: ${{ variables.devIndexUrl }}
+              stagingIndexUrl: ${{ variables.stagingIndexUrl }}
+              prodIndexUrl: ${{ variables.prodIndexUrl }}
+
+          - template: templates/azure_machine_learning/pipelines/azure-devops/steps/register-data-asset.yaml
+            parameters:
+              environment: ${{ parameters.environment }}
+              requirementsFile: ${{ variables.requirementsFile }}
+              devIndexUrl: ${{ variables.devIndexUrl }}
+              stagingIndexUrl: ${{ variables.stagingIndexUrl }}
+              prodIndexUrl: ${{ variables.prodIndexUrl }}
+
+          - template: templates/azure_machine_learning/pipelines/azure-devops/steps/az-logout.yaml
+            parameters:
+              azConfigDir: ${{ variables.azConfigDir }}

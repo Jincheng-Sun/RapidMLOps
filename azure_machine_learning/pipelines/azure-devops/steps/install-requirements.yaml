@@ -1,0 +1,45 @@
+parameters:
+  - name: environment
+    type: string
+    default: "dev"
+  - name: requirementsFile
+    type: string
+    default: "requirements.txt"
+  - name: devIndexUrl
+    type: string
+    default: "https://pypi.org/simple"
+  - name: stagingIndexUrl
+    type: string
+    default: "https://staging-artifactory.example.com"
+  - name: prodIndexUrl
+    type: string
+    default: "https://prod-artifactory.example.com"
+
+steps:
+  - script: |
+      
+      echo "Install Python dependencies in environment: $ENVIRONMENT"
+      echo "Requirements file: $REQUIREMENTS_FILE"
+
+      if [[ "$ENVIRONMENT" == "dev" ]]; then
+        export PIP_INDEX_URL="$DEV_INDEX_URL"
+      elif [[ "$ENVIRONMENT" == "staging" ]]; then
+        export PIP_INDEX_URL="$STAGING_INDEX_URL"
+      elif [[ "$ENVIRONMENT" == "prod" ]]; then
+        export PIP_INDEX_URL="$PROD_INDEX_URL"
+      else
+        echo "Unknown environment: $ENVIRONMENT"
+        exit 1
+      fi
+      
+      echo "Using PIP index URL: $PIP_INDEX_URL"
+      
+      pip install --upgrade pip
+      pip install --upgrade -r "$(Build.SourcesDirectory)/$REQUIREMENTS_FILE"
+    displayName: "Install Python Dependencies"
+    env:
+      ENVIRONMENT: ${{ parameters.environment }}
+      REQUIREMENTS_FILE: ${{ parameters.requirementsFile }}
+      DEV_INDEX_URL: ${{ parameters.devIndexUrl }}
+      STAGING_INDEX_URL: ${{ parameters.stagingIndexUrl }}
+      PROD_INDEX_URL: ${{ parameters.prodIndexUrl }}

@@ -1,0 +1,4 @@
+$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
+type: uri_folder
+description: "Fraud detection dataset (DEV environment sandbox data)"
+path: azureml://datastores/fraud_data_dev/paths/

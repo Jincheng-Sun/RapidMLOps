@@ -1,0 +1,52 @@
+  - name: environment
+    type: string
+  - name: agentPool
+    type: string
+  - name: requirementsFile
+    type: string
+  - name: subscriptionId
+    type: string
+  - name: resourceGroup
+    type: string
+  - name: workspaceName
+    type: string
+  - name: dataName
+    type: string
+    default: ''
+  - name: commitSha
+    type: string
+    default: ''
+  - name: prId
+    type: string
+    default: ''
+  - name: sourceBranch
+    type: string
+    default: ''
+
+jobs:
+  - job: CreateDataAssetJob
+    displayName: "Create Data Asset Job"
+    pool: ${{ parameters.agentPool }}
+    steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 0
+
+      - template: ../steps/install-requirements.yaml
+        parameters:
+          environment: ${{ parameters.environment }}
+          requirementsFile: ${{ parameters.requirementsFile }}
+
+      - template: ../steps/setup-azureml.yaml
+        parameters:
+          subscriptionId: ${{ parameters.subscriptionId }}
+          resourceGroup: ${{ parameters.resourceGroup }}
+          workspaceName: ${{ parameters.workspaceName }}
+
+      - template: ../steps/create-data-asset.yaml
+        parameters:
+          environment: ${{ parameters.environment }}
+          dataName: ${{ parameters.dataName }}
+          commitSha: ${{ parameters.commitSha }}
+          prId: ${{ parameters.prId }}
+          sourceBranch: ${{ parameters.sourceBranch }}

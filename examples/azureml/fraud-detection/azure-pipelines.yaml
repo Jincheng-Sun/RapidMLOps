@@ -22,7 +22,7 @@ stages:
   - stage: BuildDataAsset
     displayName: "Create Fraud Data Assets"
     jobs:
-      - template: cicd/azure-devops/jobs/data-asset-job.yaml@MLOpsPlatform
+      - template: cicd/azure-devops/azureml/jobs/data-asset-job.yaml@MLOpsPlatform
         parameters:
           environment: $(environment)
           agentPool: $(agentPool)

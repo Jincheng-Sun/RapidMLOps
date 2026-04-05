@@ -1,0 +1,20 @@
+trigger:
+  branches:
+    include:
+      - feature/*
+
+resources:
+  repositories:
+    - repository: MLOpsPlatform
+      type: git
+      name: RapidMLOps
+      ref: refs/tags/v1.0.0
+
+variables:
+  - template: ../variables/common.yaml
+  - template: ../variables/dev.yaml
+
+extends:
+  template: cicd/azure-devops/azureml/templates/e2e-mlops-pipeline-template.yaml@MLOpsPlatform
+  parameters:
+    agentPool: $(agentPool)

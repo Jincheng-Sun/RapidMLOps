@@ -8,11 +8,17 @@ from rapidmlops.azureml.data_asset.archive import main as archive
 logger = get_logger(__name__)
 
 
-def main(environment, name_override, commit_sha, pr_id, source_branch):
+def main(
+    environment,
+    name_override,
+    commit_sha,
+    pr_id,
+    source_branch,
+    data_config_file="data.yaml",
+):
     changes = get_git_changes()
 
-    # Kustomize path format: path/to/data/<asset_name>/<environment>/data.yaml
-    pattern = re.compile(rf"data/([^/]+)/{environment}/.*\.yaml$")
+    pattern = re.compile(rf"data/([^/]+)/{environment}/{data_config_file}$")
 
     processed_count = 0
     for file_path, status in changes.items():

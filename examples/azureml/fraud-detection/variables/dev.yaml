@@ -1,0 +1,8 @@
+variables:
+  environment: dev
+  agentPool: org-agent-pool-dev
+  azureSubscription: org.subscription.dev
+  resourceGroup: azureml-rg-dev
+  workspaceName: azureml-workspace-dev
+  experimentName: $(projectId)-dev-$(Build.SourceBranchName)-$(Build.BuildId)
+  computeName: cpu-cluster-dev

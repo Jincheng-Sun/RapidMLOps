@@ -1,0 +1,27 @@
+parameters:
+  - name: agentPool
+    type: string
+  - name: environment
+    type: string
+  - name: requirementsFile
+    type: string
+
+jobs:
+  - job: RunUnitTests
+    displayName: "Run Python Unit Tests"
+    pool: ${{ parameters.agentPool }}
+    steps:
+      - checkout: self
+        clean: true
+
+      - template: ../steps/install-requirements.yaml
+        parameters:
+          environment: ${{ parameters.environment }}
+          requirementsFile: ${{ parameters.requirementsFile }}
+
+      - template: ../steps/run-python-unit-test.yaml
+        parameters:
+          srcDir: "src"
+          testDir: "tests"
+          resultsDir: "test-results"
+          testPattern: "test_*.py"

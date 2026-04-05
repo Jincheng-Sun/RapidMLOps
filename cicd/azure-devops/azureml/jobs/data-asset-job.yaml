@@ -30,6 +30,13 @@ jobs:
     steps:
       - checkout: self
         clean: true
+        path: s/
+        fetchDepth: 0
+      
+      - checkout: RapidMLOps
+        clean: true
+        path: s/rapidmlops
+        fetchTags: false
         fetchDepth: 0
 
       - template: ../steps/install-requirements.yaml

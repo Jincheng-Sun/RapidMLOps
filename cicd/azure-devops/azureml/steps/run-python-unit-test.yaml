@@ -1,0 +1,42 @@
+parameters:
+  - name: srcDir
+    type: string
+    default: "src"
+  - name: testDir
+    type: string
+    default: "tests"
+  - name: resultsDir
+    type: string
+    default: "test-results"
+  - name: testPattern
+    type: string
+    default: "test_*.py"
+
+steps:
+  - script: |
+      echo "Setting up Python test environment..."
+      python -m pip install --upgrade pip
+      pip install pytest pytest-cov
+      
+      echo "Running PyTest..."
+      mkdir -p ${{ parameters.resultsDir }}
+      python -m pytest ${{ parameters.testDir }} \
+        --junitxml=${{ parameters.resultsDir }}/test-results.xml \
+        --cov=${{ parameters.srcDir }} \
+        --cov-report=xml:${{ parameters.resultsDir }}/coverage.xml \
+        --cov-report=term
+    displayName: 'Execute PyTest Suite'
+  
+  - task: PublishTestResults@2
+    displayName: 'Publish Unit Test Results'
+    condition: always()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '${{ parameters.resultsDir }}/test-results.xml'
+      testRunTitle: 'Python Unit Tests'
+      
+  - task: PublishCodeCoverageResults@2
+    displayName: 'Publish Code Coverage'
+    condition: always()
+    inputs:
+      summaryFileLocation: '${{ parameters.resultsDir }}/coverage.xml'

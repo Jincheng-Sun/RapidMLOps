@@ -1,0 +1,49 @@
+parameters:
+  - name: agentPool
+    type: string
+    default: 'ubuntu-latest'
+
+stages:
+  - stage: ValidatePipelineVariables
+    displayName: "Validate Pipeline Variables Stage"
+    jobs:
+      - job: ValidatePipelineVariables
+        displayName: "Validate Pipeline Variables"
+        pool:
+          vmImage: ${{ parameters.agentPool }}
+        steps:
+          - script: |
+              echo "Validating Pipeline Variables..."
+              echo "Project ID: $(projectId)"
+              echo "Project Name: $(projectName)"
+              echo "Project Owner: $(projectOwner)"
+              echo "Project Description: $(projectDescription)"
+              echo "Team ID: $(teamId)"
+              echo "Team Name: $(teamName)"
+              echo "Approver: $(approver)"
+  
+  - stage: UnitTests
+    displayName: "Unit Tests Stage"
+    jobs:
+      - template: ../jobs/unit-test-job.yaml
+        parameters:
+          agentPool: ${{ parameters.agentPool }}
+          environment: $(environment)
+          requirementsFile: $(requirementsFile)
+
+  - stage: BuildAndCreateDataAsset
+    displayName: "Build and Create Data Asset Stage"
+    jobs:
+      - template: ../jobs/data-asset-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+          
+          # Native Azure DevOps Lineage Variables!
+          commitSha: $(Build.SourceVersion)
+          prId: $(System.PullRequest.PullRequestId)
+          sourceBranch: $(Build.SourceBranchName)

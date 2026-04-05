@@ -72,3 +72,29 @@ variables:
   - name: agentPool
     value: 'ubuntu-latest' # Or 'My-Private-VNet-Pool' if using private links
 ```
+
+---
+
+## 4. Securing Environments (Preventing Jailbreaks)
+
+If a developer arbitrarily modifies their personal pipeline `.yaml` to point to the `org.subscription.prod` Service Connection, they could maliciously execute code against Production from their feature branch. 
+
+To prevent this, you **MUST** apply Azure DevOps Zero-Trust security rules on both your **Service Connections** and **Agent Pools**.
+
+### Step 4.1: Branch Control
+You must lock down production configurations so they physically reject requests originating from non-approved branches:
+1. In Azure DevOps, go to **Project Settings** -> **Service connections** (or **Agent pools**).
+2. Select your Production Service Connection -> click the **More options (3 dots)** menu -> **Approvals and checks**.
+3. Add a **Branch control** check.
+4. Set the allowed branches to `refs/heads/main` or `refs/tags/*`. 
+*Result: If a pipeline on `feature/evil` attempts to use the Prod Service Connection, ADO instantly terminates the pipeline before it runs.*
+
+### Step 4.2: Required Templates
+You must lock the endpoint so it is only allowed to execute if it is enveloped by your official platform templates:
+1. Inside **Approvals and checks**, add a **Required template** check.
+2. Specify the repository `RapidMLOps` and the exact template path `cicd/azure-devops/azureml/templates/e2e-mlops-pipeline-template.yaml`.
+*Result: If a user writes an arbitrary pipeline bypassing your unit tests and stages, Azure DevOps will block their access to the Service Connection or Agent Pool.*
+
+### Step 4.3: Agent Pool Isolation (Cross-Team Security)
+If `Team A` and `Team B` share the same local agent pipeline pool (e.g. `shared-prod-agents`), the scripts running on the VM could potentially intercept environment variables or workspaces. 
+**Best Practice**: Create dedicated Agent Pools per team per environment (e.g., `fraud-team-prod-pool` and `recommendation-team-prod-pool`). Use Workload Identity Federation (OIDC) bound strictly to that specific pool so the compute engine can never impersonate a different deployment!

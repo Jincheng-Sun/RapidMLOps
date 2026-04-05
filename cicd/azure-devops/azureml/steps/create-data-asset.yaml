@@ -13,6 +13,9 @@ parameters:
   - name: sourceBranch
     type: string
     default: ''
+  - name: dataConfigFile
+    type: string
+    default: 'data.yaml'
 
 steps:
   - script: |
@@ -33,6 +36,10 @@ steps:
       if [ -n "${{ parameters.sourceBranch }}" ]; then
         CMD_ARGS="$CMD_ARGS --source_branch ${{ parameters.sourceBranch }}"
       fi
+      if [ -n "${{ parameters.dataConfigFile }}" ]; then
+        CMD_ARGS="$CMD_ARGS --data_config_file ${{ parameters.dataConfigFile }}"
+      fi
       
-      python src/rapidmlops/azureml/data_asset/handler.py $CMD_ARGS
+      # The python code executes exactly where the multi-checkout logic placed the rapidmlops template code!
+      python $(Pipeline.Workspace)/s/rapidmlops/src/rapidmlops/azureml/data_asset/handler.py $CMD_ARGS
     displayName: 'Execute handler.py Git Orchestrator'

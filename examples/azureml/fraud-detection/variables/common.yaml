@@ -1,0 +1,19 @@
+variables:
+  # Project information
+  projectId: 1234567890
+  projectName: fraud-detection
+  projectOwner: John Doe
+  projectDescription: Fraud detection model for credit card transactions
+  teamId: 1234567890
+  teamName: fraud-detection-team
+  approver: John Doe
+
+  # Repository related variables
+  packageName: fraud-detection
+  dataConfigFile: data.yaml
+  environmentConfigFile: environment.yaml
+  componentConfigFile: component.yaml
+  pipelineConfigFile: pipeline.yaml
+  experimentConfigFile: experiment.yaml
+  endpointConfigFile: endpoint.yaml
+  deploymentConfigFile: deployment.yaml

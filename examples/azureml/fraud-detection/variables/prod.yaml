@@ -1,0 +1,8 @@
+variables:
+  environment: prod
+  agentPool: org-agent-pool-prod
+  azureSubscription: org.subscription.prod
+  resourceGroup: azureml-rg-prod
+  workspaceName: azureml-workspace-prod
+  experimentName: $(projectId)-prod-$(Build.SourceBranchName)-$(Build.BuildId)
+  computeName: cpu-cluster-prod

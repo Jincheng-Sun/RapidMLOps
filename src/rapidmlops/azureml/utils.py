@@ -26,8 +26,8 @@ def get_ml_client(
         subscription_id (str, optional): The subscription id of the Azure Machine Learning workspace.
         resource_group (str, optional): The resource group of the Azure Machine Learning workspace.
         workspace_name (str, optional): The name of the Azure Machine Learning workspace.
-        registry_name: str, optional, the name of the Azure Machine Learning registry.
-        config_path: str, optional, the path to the Azure Machine Learning workspace configuration file.
+        registry_name (str, optional): The name of the Azure Machine Learning registry.
+        config_path (str, optional): The path to the Azure Machine Learning workspace configuration file.
 
     Raises:
         Exception: If the connection fails after retrying.

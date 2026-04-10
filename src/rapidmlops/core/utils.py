@@ -34,8 +34,9 @@ def get_git_changes():
     try:
         # We use HEAD~1 to check against the previous commit.
         # In a squashed PR merge, this gets the difference since the last merge baseline.
+        # --no-renames ensures renamed files are treated explicitly as a Delete and an Add.
         result = subprocess.run(
-            ["git", "diff", "--name-status", "HEAD~1", "HEAD"],
+            ["git", "diff", "--name-status", "--no-renames", "HEAD~1", "HEAD"],
             capture_output=True,
             text=True,
             check=True,

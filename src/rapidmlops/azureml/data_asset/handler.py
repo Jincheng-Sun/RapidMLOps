@@ -31,7 +31,7 @@ def main(
             f"Detected change in '{file_path}' for asset '{asset_name}' with git status '{status}'"
         )
 
-        if status in ["A", "M", "R", "C"]:
+        if status in ["A", "M"]:
             logger.info(f"Creating/Updating Data Asset: {asset_name}")
             create_or_update(
                 data_config_path=file_path,
@@ -64,7 +64,8 @@ if __name__ == "__main__":
     parser.add_argument("--name", type=str, help="Optional name override")
     parser.add_argument("--commit_sha", type=str, help="Git commit sha")
     parser.add_argument("--pr_id", type=str, help="Pull Request ID")
-    parser.add_argument("--source_branch", type=str, help="Source Branch")
+    parser.add_argument("--source_branch", type=str, help="Remote branch name")
+    parser.add_argument("--data_config_file", type=str, default="data.yaml")
     args = parser.parse_args()
 
     main(
@@ -73,4 +74,5 @@ if __name__ == "__main__":
         commit_sha=args.commit_sha,
         pr_id=args.pr_id,
         source_branch=args.source_branch,
+        data_config_file=args.data_config_file,
     )

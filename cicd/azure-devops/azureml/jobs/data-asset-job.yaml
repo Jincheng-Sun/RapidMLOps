@@ -24,8 +24,8 @@
     default: ''
 
 jobs:
-  - job: CreateDataAssetJob
-    displayName: "Create Data Asset Job"
+  - job: ProcessDataAssetJob
+    displayName: "Process Data Asset Job"
     pool: ${{ parameters.agentPool }}
     steps:
       - checkout: self
@@ -50,7 +50,7 @@ jobs:
           resourceGroup: ${{ parameters.resourceGroup }}
           workspaceName: ${{ parameters.workspaceName }}
 
-      - template: ../steps/create-data-asset.yaml
+      - template: ../steps/process-data-asset.yaml
         parameters:
           environment: ${{ parameters.environment }}
           dataName: ${{ parameters.dataName }}

@@ -31,8 +31,8 @@ stages:
           environment: $(environment)
           requirementsFile: $(requirementsFile)
 
-  - stage: BuildAndCreateDataAsset
-    displayName: "Build and Create Data Asset Stage"
+  - stage: ProcessDataAsset
+    displayName: "Process Data Asset Stage"
     jobs:
       - template: ../jobs/data-asset-job.yaml
         parameters:

@@ -6,7 +6,14 @@ from rapidmlops.azureml.utils import get_ml_client
 logger = get_logger(__name__)
 
 
-def main(name: str, version: str = None, ml_client: MLClient = None):
+def archive_data_asset(name: str, version: str = None, ml_client: MLClient = None):
+    """Archives a data asset in Azure Machine Learning workspace.
+
+    Args:
+        name (str): The Data Asset name.
+        version (str, optional): The Data Asset version, default is None (archive all versions).
+        ml_client (MLClient, optional): The MLClient instance.
+    """
     if not ml_client:
         ml_client = get_ml_client(logger_name=__name__)
 
@@ -31,4 +38,4 @@ if __name__ == "__main__":
     parser.add_argument("--name", type=str, help="The Data Asset name.")
     parser.add_argument("--version", type=str, help="The Data Asset version.")
     args = parser.parse_args()
-    main(name=args.name, version=args.version)
+    archive_data_asset(name=args.name, version=args.version)

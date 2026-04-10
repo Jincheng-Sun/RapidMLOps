@@ -2,20 +2,31 @@ import argparse
 import re
 
 from rapidmlops.core.utils import get_logger, get_git_changes
-from rapidmlops.azureml.data_asset.create_or_update import main as create_or_update
-from rapidmlops.azureml.data_asset.archive import main as archive
+from rapidmlops.azureml.data_asset.create_or_update import create_or_update_data_asset
+from rapidmlops.azureml.data_asset.archive import archive_data_asset
 
 logger = get_logger(__name__)
 
 
-def main(
+def handle_data_asset_gitops(
     environment,
-    name_override,
-    commit_sha,
-    pr_id,
-    source_branch,
+    name_override=None,
+    commit_sha=None,
+    pr_id=None,
+    source_branch=None,
     data_config_file="data.yaml",
 ):
+    """Handles data asset changes based on git status.
+
+    Args:
+        environment (str): The target environment (e.g., dev, prod).
+        name_override (str, optional): The Data Asset name, default is None (use the name from the data config file).
+        commit_sha (str, optional): The Git Commit SHA (determines Asset Version).
+        pr_id (str, optional): The Pull Request ID for lineage.
+        source_branch (str, optional): The branch name serving as secondary lineage.
+        data_config_file (str, optional): The path to the data asset configuration file, default is "data.yaml".
+    """
+
     changes = get_git_changes()
 
     pattern = re.compile(rf"data/([^/]+)/{environment}/{data_config_file}$")
@@ -33,7 +44,7 @@ def main(
 
         if status in ["A", "M"]:
             logger.info(f"Creating/Updating Data Asset: {asset_name}")
-            create_or_update(
+            create_or_update_data_asset(
                 data_config_path=file_path,
                 name=asset_name,
                 commit_sha=commit_sha,
@@ -46,7 +57,7 @@ def main(
                 f"Archiving Data Asset: {asset_name} (Warning: default version archived)"
             )
             # In a real scenario, you'd archive all versions or a specific deleted version.
-            archive(name=asset_name, version=None)
+            archive_data_asset(name=asset_name, version=None)
             processed_count += 1
 
     if processed_count == 0:
@@ -68,7 +79,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_config_file", type=str, default="data.yaml")
     args = parser.parse_args()
 
-    main(
+    handle_data_asset_gitops(
         environment=args.environment,
         name_override=args.name,
         commit_sha=args.commit_sha,

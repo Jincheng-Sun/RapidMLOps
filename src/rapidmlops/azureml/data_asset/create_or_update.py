@@ -7,7 +7,7 @@ from rapidmlops.azureml.utils import get_ml_client
 logger = get_logger(__name__)
 
 
-def main(
+def create_or_update_data_asset(
     data_config_path: str,
     name: str = None,
     commit_sha: str = None,
@@ -15,6 +15,17 @@ def main(
     source_branch: str = None,
     ml_client: MLClient = None,
 ):
+    """Creates or updates a data asset in Azure Machine Learning workspace.
+
+    Args:
+        data_config_path (str): The path to the data asset configuration.
+        name (str, optional): The Data Asset name, default is None (use the name from the data config file).
+        commit_sha (str, optional): The Git Commit SHA (determines Asset Version).
+        pr_id (str, optional): The Pull Request ID for lineage.
+        source_branch (str, optional): The branch name serving as secondary lineage.
+        ml_client (MLClient, optional): The MLClient instance.
+    """
+
     if not ml_client:
         ml_client = get_ml_client(logger_name=__name__)
 
@@ -72,7 +83,7 @@ if __name__ == "__main__":
         help="The branch name serving as secondary lineage.",
     )
     args = parser.parse_args()
-    main(
+    create_or_update_data_asset(
         data_config_path=args.data_config_path,
         name=args.name,
         commit_sha=args.commit_sha,

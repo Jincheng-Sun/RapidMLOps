@@ -7,12 +7,16 @@ def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """Get a logger with the specified name and level. The logger will log to stdout.
 
     Args:
-        name: str, The name of the logger.
-        level: int, The logging level.
+        name (str): The name of the logger.
+        level (int): The logging level.
 
     Returns:
         logging.Logger: The logger.
     """
+    # Check if the logger already has handlers
+    if logging.getLogger(name).hasHandlers():
+        return logging.getLogger(name)
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
     ch = logging.StreamHandler(sys.stdout)
@@ -26,11 +30,12 @@ def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
 
 
 def get_git_changes():
+    """Executes git diff to find added, modified, and deleted files.
+
+    Returns:
+        dict: A dictionary of file paths and their git change status {file_path: 'A'/'M'/'D'}
     """
-    Executes git diff to find added, modified, and deleted files.
-    Returns a dictionary of {file_path: 'A'/'M'/'D'}
-    """
-    logger = logging.getLogger(__name__)
+    logger = get_logger(__name__)
     try:
         # We use HEAD~1 to check against the previous commit.
         # In a squashed PR merge, this gets the difference since the last merge baseline.
@@ -51,7 +56,7 @@ def get_git_changes():
             continue
         parts = line.split("\t")
         if len(parts) >= 2:
-            status = parts[0][0]  # Get A, M, D, R, C etc.
+            status = parts[0][0]  # Get A, M and D
             file_path = parts[-1]
             changes[file_path] = status
 

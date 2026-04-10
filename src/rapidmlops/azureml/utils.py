@@ -4,6 +4,8 @@ import logging
 from azure.identity import AzureCliCredential
 from azure.ai.ml import MLClient
 
+from rapidmlops.core.utils import get_logger
+
 
 def get_ml_client(
     logger_name: str = "RapidMLOps",
@@ -18,12 +20,12 @@ def get_ml_client(
     """Build a session with Azure Machine Learning workspace.
 
     Args:
-        logger_name: str, the name of the logger.
-        retry_times: int, the number of times to retry if the connection fails.
-        retry_interval: int, the interval between retries.
-        subscription_id: str, optional, the subscription id of the Azure Machine Learning workspace.
-        resource_group: str, optional, the resource group of the Azure Machine Learning workspace.
-        workspace_name: str, optional, the name of the Azure Machine Learning workspace.
+        logger_name (str): The name of the logger.
+        retry_times (int): The number of times to retry if the connection fails.
+        retry_interval (int): The interval between retries.
+        subscription_id (str, optional): The subscription id of the Azure Machine Learning workspace.
+        resource_group (str, optional): The resource group of the Azure Machine Learning workspace.
+        workspace_name (str, optional): The name of the Azure Machine Learning workspace.
         registry_name: str, optional, the name of the Azure Machine Learning registry.
         config_path: str, optional, the path to the Azure Machine Learning workspace configuration file.
 
@@ -33,7 +35,7 @@ def get_ml_client(
     Returns:
         MLClient: The session with Azure Machine Learning workspace.
     """
-    logger = logging.getLogger(logger_name)
+    logger = get_logger(logger_name)
 
     for i in range(retry_times):
         try:

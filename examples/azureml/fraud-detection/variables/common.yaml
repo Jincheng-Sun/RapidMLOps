@@ -8,6 +8,11 @@ variables:
   teamName: fraud-detection-team
   approver: John Doe
 
+  # Operational variables
+  devEnvironment: dev
+  stageEnvironment: stage
+  prodEnvironment: prod
+
   # Repository related variables
   packageName: fraud-detection
   dataConfigFile: data.yaml

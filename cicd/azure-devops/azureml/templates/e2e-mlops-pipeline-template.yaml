@@ -13,6 +13,7 @@ stages:
           vmImage: ${{ parameters.agentPool }}
         steps:
           - script: |
+              echo "Environment: $(environment)"
               echo "Validating Pipeline Variables..."
               echo "Project ID: $(projectId)"
               echo "Project Name: $(projectName)"
@@ -30,9 +31,26 @@ stages:
           agentPool: ${{ parameters.agentPool }}
           environment: $(environment)
           requirementsFile: $(requirementsFile)
+  
+  - stage: ApprovalGate
+    displayName: "Approval Gate Stage"
+    condition: and(succeeded(), ne(variables['environment'], variables['devEnvironment']))
+    jobs:
+      - deployment: Approval
+        environment: $(environment)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: |
+                    echo "Please review the changes and approve or reject the pipeline."
+                  name: ApprovalGate
+                  displayName: "Approval Gate"
 
   - stage: ProcessDataAsset
     displayName: "Process Data Asset Stage"
+    dependsOn: ApprovalGate
+    condition: in(dependencies.ApprovalGate.result, 'Succeeded', 'Skipped')
     jobs:
       - template: ../jobs/data-asset-job.yaml
         parameters:
@@ -47,3 +65,115 @@ stages:
           commitSha: $(Build.SourceVersion)
           prId: $(System.PullRequest.PullRequestId)
           sourceBranch: $(Build.SourceBranchName)
+  
+  - stage: ProcessEnvironment
+    displayName: "Process Environment Stage"
+    dependsOn: ProcessDataAsset
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/environment-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+
+  - stage: ProcessComponent
+    displayName: "Process Component Stage"
+    dependsOn: ProcessEnvironment
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/component-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+  
+  - stage: ProcessExperiment
+    displayName: "Process Experiment Stage"
+    dependsOn: ProcessComponent
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/experiment-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+  
+  - stage: ProcessEndpoint
+    displayName: "Process Endpoint Stage"
+    dependsOn: ProcessExperiment
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/endpoint-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+  
+  - stage: ProcessDeployment
+    displayName: "Process Deployment Stage"
+    dependsOn: ProcessEndpoint
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/deployment-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+
+  - stage: ProcessTrafficRouting
+    displayName: "Process Traffic Routing Stage"
+    dependsOn: ProcessDeployment
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/traffic-routing-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+  
+  - stage: ProcessMonitoring
+    displayName: "Process Monitoring Stage"
+    dependsOn: ProcessTrafficRouting
+    condition: succeeded()
+    jobs:
+      - template: ../jobs/monitoring-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)
+  
+  - stage: ProcessModelGovernance
+    displayName: "Process Model Governance Stage"
+    dependsOn: ProcessExperiment
+    condition: and(succeeded(), eq(variables['environment'], variables['prodEnvironment']))
+    jobs:
+      - template: ../jobs/model-governance-job.yaml
+        parameters:
+          environment: $(environment)
+          agentPool: $(agentPool)
+          requirementsFile: $(requirementsFile)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          workspaceName: $(workspaceName)

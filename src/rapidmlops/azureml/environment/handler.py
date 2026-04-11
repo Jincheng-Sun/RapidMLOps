@@ -2,34 +2,36 @@ import argparse
 import re
 
 from rapidmlops.core.utils import get_logger, get_git_changes
-from rapidmlops.azureml.data_asset.create_or_update import create_or_update_data_asset
-from rapidmlops.azureml.data_asset.archive import archive_data_asset
+from rapidmlops.azureml.environment.create_or_update import create_or_update_environment
+from rapidmlops.azureml.environment.archive import archive_environment
 
 logger = get_logger(__name__)
 
 
-def handle_data_asset_gitops(
+def handle_environment_gitops(
     environment,
     commit_sha=None,
     pr_id=None,
     source_branch=None,
-    data_folder="data_assets",
-    data_config_file="data.yaml",
+    environment_folder="environments",
+    environment_config_file="environment.yaml",
 ):
-    """Handles data asset changes based on git status.
+    """Handles environment changes based on git status.
 
     Args:
         environment (str): The target environment (e.g., dev, prod).
-        commit_sha (str, optional): The Git Commit SHA (determines Asset Version).
+        commit_sha (str, optional): The Git Commit SHA (determines Environment Version).
         pr_id (str, optional): The Pull Request ID for lineage.
         source_branch (str, optional): The branch name serving as secondary lineage.
-        data_folder (str, optional): The folder containing data asset configurations, default is "data_assets".
-        data_config_file (str, optional): The path to the data asset configuration file, default is "data.yaml".
+        environment_folder (str, optional): The folder containing environment configurations, default is "environments".
+        environment_config_file (str, optional): The path to the environment configuration file, default is "environment.yaml".
     """
 
     changes = get_git_changes()
 
-    pattern = re.compile(rf"{data_folder}/([^/]+)/{environment}/{data_config_file}$")
+    pattern = re.compile(
+        rf"{environment_folder}/([^/]+)/{environment}/{environment_config_file}$"
+    )
 
     processed_count = 0
     for file_path, status in changes.items():
@@ -43,9 +45,9 @@ def handle_data_asset_gitops(
         )
 
         if status in ["A", "M"]:
-            logger.info(f"Creating/Updating Data Asset: {asset_name}")
-            create_or_update_data_asset(
-                data_config_path=file_path,
+            logger.info(f"Creating/Updating Environment: {asset_name}")
+            create_or_update_environment(
+                environment_config_path=file_path,
                 name=asset_name,
                 commit_sha=commit_sha,
                 pr_id=pr_id,
@@ -54,18 +56,18 @@ def handle_data_asset_gitops(
             processed_count += 1
         elif status == "D":
             logger.info(
-                f"Archiving Data Asset: {asset_name} (Warning: default version archived)"
+                f"Archiving Environment: {asset_name} (Warning: default version archived)"
             )
             # In a real scenario, you'd archive all versions or a specific deleted version.
-            archive_data_asset(name=asset_name, version=None)
+            archive_environment(name=asset_name, version=None)
             processed_count += 1
 
     if processed_count == 0:
-        logger.info(f"No Data Asset changes detected for environment: {environment}.")
+        logger.info(f"No Environment changes detected for environment: {environment}.")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Gitops Data Asset Orchestrator")
+    parser = argparse.ArgumentParser(description="Gitops Environment Orchestrator")
     parser.add_argument(
         "--environment",
         type=str,
@@ -75,15 +77,17 @@ if __name__ == "__main__":
     parser.add_argument("--commit_sha", type=str, help="Git commit sha")
     parser.add_argument("--pr_id", type=str, help="Pull Request ID")
     parser.add_argument("--source_branch", type=str, help="Remote branch name")
-    parser.add_argument("--data_folder", type=str, default="data_assets")
-    parser.add_argument("--data_config_file", type=str, default="data.yaml")
+    parser.add_argument("--environment_folder", type=str, default="environments")
+    parser.add_argument(
+        "--environment_config_file", type=str, default="environment.yaml"
+    )
     args = parser.parse_args()
 
-    handle_data_asset_gitops(
+    handle_environment_gitops(
         environment=args.environment,
         commit_sha=args.commit_sha,
         pr_id=args.pr_id,
         source_branch=args.source_branch,
-        data_folder=args.data_folder,
-        data_config_file=args.data_config_file,
+        environment_folder=args.environment_folder,
+        environment_config_file=args.environment_config_file,
     )

@@ -15,10 +15,15 @@ variables:
 
   # Repository related variables
   packageName: fraud-detection
+  dataFolderName: data_assets
+  environmentFolderName: environments
+  componentFolderName: components
+  experimentFolderName: experiments
+  endpointFolderName: endpoints
+  deploymentFolderName: deployments
   dataConfigFile: data.yaml
   environmentConfigFile: environment.yaml
   componentConfigFile: component.yaml
-  pipelineConfigFile: pipeline.yaml
   experimentConfigFile: experiment.yaml
   endpointConfigFile: endpoint.yaml
   deploymentConfigFile: deployment.yaml

@@ -1,0 +1,16 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: sklearn-train-env
+description: "Environment for training scikit-learn models"
+version: "1.0.0"
+build:
+  path: ../
+  dockerfile: Dockerfile
+  # environment variables
+  environment_variables:
+    - name: PIP_INDEX_URL
+      value: https://pypi.org/simple/
+    - name: IMAGE_ARTIFACTORY_URL
+      value: mcr.microsoft.com/
+      
+    
+  

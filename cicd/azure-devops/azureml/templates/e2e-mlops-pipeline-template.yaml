@@ -60,11 +60,11 @@ stages:
           subscriptionId: $(subscriptionId)
           resourceGroup: $(resourceGroup)
           workspaceName: $(workspaceName)
-          
-          # Native Azure DevOps Lineage Variables!
           commitSha: $(Build.SourceVersion)
           prId: $(System.PullRequest.PullRequestId)
           sourceBranch: $(Build.SourceBranchName)
+          dataFolder: $(dataFolder)
+          dataConfigFile: $(dataConfigFile)
   
   - stage: ProcessEnvironment
     displayName: "Process Environment Stage"
@@ -79,6 +79,11 @@ stages:
           subscriptionId: $(subscriptionId)
           resourceGroup: $(resourceGroup)
           workspaceName: $(workspaceName)
+          commitSha: $(Build.SourceVersion)
+          prId: $(System.PullRequest.PullRequestId)
+          sourceBranch: $(Build.SourceBranchName)
+          environmentFolder: $(environmentFolder)
+          environmentConfigFile: $(environmentConfigFile)
 
   - stage: ProcessComponent
     displayName: "Process Component Stage"

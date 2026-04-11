@@ -10,16 +10,17 @@ parameters:
   - name: sourceBranch
     type: string
     default: ''
-  - name: dataFolder
+  - name: environmentFolder
     type: string
-    default: 'data_assets'
-  - name: dataConfigFile
+    default: 'environments'
+  - name: environmentConfigFile
     type: string
-    default: 'data.yaml'
+    default: 'environment.yaml'
+
 
 steps:
   - script: |
-      echo "Executing Dynamic Git Diff for Data Assets..."
+      echo "Executing Dynamic Git Diff for Environments..."
       
       # Build the args
       CMD_ARGS="--environment ${{ parameters.environment }}"
@@ -33,13 +34,13 @@ steps:
       if [ -n "${{ parameters.sourceBranch }}" ]; then
         CMD_ARGS="$CMD_ARGS --source_branch ${{ parameters.sourceBranch }}"
       fi
-      if [ -n "${{ parameters.dataFolder }}" ]; then
-        CMD_ARGS="$CMD_ARGS --data_folder ${{ parameters.dataFolder }}"
+      if [ -n "${{ parameters.environmentFolder }}" ]; then
+        CMD_ARGS="$CMD_ARGS --environment_folder ${{ parameters.environmentFolder }}"
       fi
-      if [ -n "${{ parameters.dataConfigFile }}" ]; then
-        CMD_ARGS="$CMD_ARGS --data_config_file ${{ parameters.dataConfigFile }}"
+      if [ -n "${{ parameters.environmentConfigFile }}" ]; then
+        CMD_ARGS="$CMD_ARGS --environment_config_file ${{ parameters.environmentConfigFile }}"
       fi
       
       # The python code executes exactly where the multi-checkout logic placed the rapidmlops template code!
-      python $(Pipeline.Workspace)/s/rapidmlops/src/rapidmlops/azureml/data_asset/handler.py $CMD_ARGS
+      python $(Pipeline.Workspace)/s/rapidmlops/src/rapidmlops/azureml/environment/handler.py $CMD_ARGS
     displayName: 'Execute handler.py Git Orchestrator'

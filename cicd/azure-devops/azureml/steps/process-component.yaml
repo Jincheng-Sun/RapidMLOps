@@ -1,0 +1,45 @@
+parameters:
+  - name: environment
+    type: string
+  - name: commitSha
+    type: string
+    default: ''
+  - name: prId
+    type: string
+    default: ''
+  - name: sourceBranch
+    type: string
+    default: ''
+  - name: componentFolder
+    type: string
+    default: 'components'
+  - name: componentConfigFile
+    type: string
+    default: 'component.yaml'
+
+steps:
+  - script: |
+      echo "Executing Dynamic Git Diff for Components..."
+      
+      # Build the args
+      CMD_ARGS="--environment ${{ parameters.environment }}"
+      
+      if [ -n "${{ parameters.commitSha }}" ]; then
+        CMD_ARGS="$CMD_ARGS --commit_sha ${{ parameters.commitSha }}"
+      fi
+      if [ -n "${{ parameters.prId }}" ]; then
+        CMD_ARGS="$CMD_ARGS --pr_id ${{ parameters.prId }}"
+      fi
+      if [ -n "${{ parameters.sourceBranch }}" ]; then
+        CMD_ARGS="$CMD_ARGS --source_branch ${{ parameters.sourceBranch }}"
+      fi
+      if [ -n "${{ parameters.componentFolder }}" ]; then
+        CMD_ARGS="$CMD_ARGS --component_folder ${{ parameters.componentFolder }}"
+      fi
+      if [ -n "${{ parameters.componentConfigFile }}" ]; then
+        CMD_ARGS="$CMD_ARGS --component_config_file ${{ parameters.componentConfigFile }}"
+      fi
+      
+      # The python code executes exactly where the multi-checkout logic placed the rapidmlops template code!
+      python $(Pipeline.Workspace)/s/rapidmlops/src/rapidmlops/azureml/component/handler.py $CMD_ARGS
+    displayName: 'Execute handler.py Git Orchestrator'

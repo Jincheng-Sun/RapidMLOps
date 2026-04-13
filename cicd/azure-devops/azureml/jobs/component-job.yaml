@@ -20,16 +20,16 @@ parameters:
   - name: sourceBranch
     type: string
     default: ''
-  - name: dataFolder
+  - name: componentFolder
     type: string
-    default: 'data_assets'
-  - name: dataConfigFile
+    default: 'components'
+  - name: componentConfigFile
     type: string
-    default: 'data.yaml'
+    default: 'component.yaml'
 
 jobs:
-  - job: ProcessDataAssetJob
-    displayName: "Process Data Asset Job"
+  - job: ProcessComponentJob
+    displayName: "Process Component Job"
     pool: ${{ parameters.agentPool }}
     steps:
       - checkout: self
@@ -54,11 +54,11 @@ jobs:
           resourceGroup: ${{ parameters.resourceGroup }}
           workspaceName: ${{ parameters.workspaceName }}
 
-      - template: ../steps/process-data-asset.yaml
+      - template: ../steps/process-component.yaml
         parameters:
           environment: ${{ parameters.environment }}
           commitSha: ${{ parameters.commitSha }}
           prId: ${{ parameters.prId }}
           sourceBranch: ${{ parameters.sourceBranch }}
-          dataFolder: ${{ parameters.dataFolder }}
-          dataConfigFile: ${{ parameters.dataConfigFile }}
+          componentFolder: ${{ parameters.componentFolder }}
+          componentConfigFile: ${{ parameters.componentConfigFile }}

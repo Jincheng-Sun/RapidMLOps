@@ -34,18 +34,6 @@ def create_or_update_environment(
         overrides.append({"name": name})
     if commit_sha:
         overrides.append({"version": commit_sha})
-
-    tags = {}
-    if commit_sha:
-        tags["git_commit_sha"] = commit_sha
-    if pr_id:
-        tags["pr_id"] = pr_id
-    if source_branch:
-        tags["source_branch"] = source_branch
-
-    if tags:
-        overrides.append({"tags": tags})
-
     params_override = overrides if overrides else None
 
     logger.info(
@@ -54,6 +42,17 @@ def create_or_update_environment(
     environment = load_environment(
         source=environment_config_path, params_override=params_override
     )
+
+    tags = environment.tags if environment.tags else {}
+    if commit_sha:
+        tags["git_commit_sha"] = commit_sha
+    if pr_id:
+        tags["pr_id"] = pr_id
+    if source_branch:
+        tags["source_branch"] = source_branch
+
+    if tags:
+        environment.tags = tags
 
     ml_client.environments.create_or_update(environment)
     logger.info(

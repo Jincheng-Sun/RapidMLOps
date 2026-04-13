@@ -98,6 +98,11 @@ stages:
           subscriptionId: $(subscriptionId)
           resourceGroup: $(resourceGroup)
           workspaceName: $(workspaceName)
+          commitSha: $(Build.SourceVersion)
+          prId: $(System.PullRequest.PullRequestId)
+          sourceBranch: $(Build.SourceBranchName)
+          componentFolder: $(componentFolder)
+          componentConfigFile: $(componentConfigFile)
   
   - stage: ProcessExperiment
     displayName: "Process Experiment Stage"

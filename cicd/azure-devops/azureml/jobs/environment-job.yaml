@@ -1,3 +1,4 @@
+parameters:
   - name: environment
     type: string
   - name: agentPool

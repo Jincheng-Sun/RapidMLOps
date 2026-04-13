@@ -34,8 +34,12 @@ def create_or_update_data_asset(
         overrides.append({"name": name})
     if commit_sha:
         overrides.append({"version": commit_sha})
+    params_override = overrides if overrides else None
 
-    tags = {}
+    logger.info(f"[INFO] Loading Data Asset configuration from: {data_config_path}")
+    data_asset = load_data(source=data_config_path, params_override=params_override)
+
+    tags = data_asset.tags if data_asset.tags else {}
     if commit_sha:
         tags["git_commit_sha"] = commit_sha
     if pr_id:
@@ -44,12 +48,7 @@ def create_or_update_data_asset(
         tags["source_branch"] = source_branch
 
     if tags:
-        overrides.append({"tags": tags})
-
-    params_override = overrides if overrides else None
-
-    logger.info(f"[INFO] Loading Data Asset configuration from: {data_config_path}")
-    data_asset = load_data(source=data_config_path, params_override=params_override)
+        data_asset.tags = tags
 
     ml_client.data.create_or_update(data_asset)
     logger.info(

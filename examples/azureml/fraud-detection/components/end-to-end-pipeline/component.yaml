@@ -1,0 +1,49 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineComponent.schema.json
+
+name: end-to-end-pipeline
+version: 1.0.0
+display_name: End-to-End Pipeline
+description: End-to-End linear regression with cross-validation training and model evaluation pipeline
+type: pipeline
+
+inputs:
+  training_data: 
+    type: uri_folder
+  test_data: 
+    type: uri_folder
+  test_labels: 
+    type: uri_folder
+  registered_model_name: 
+    type: string
+
+outputs:
+  result_save_path:
+    type: uri_folder
+
+jobs:
+  prep_train_data:
+    type: command
+    # component: azureml://registries/<registry_name>/components/prep-raw-data/versions/<version_id>
+    component: azureml:prep-raw-data@latest
+    inputs:
+      raw_data: ${{ parent.inputs.training_data }}
+  prep_test_data:
+    type: command
+    component: azureml:prep-raw-data@latest
+    inputs:
+      raw_data: ${{ parent.inputs.test_data }}
+  train_linear_regression:
+    type: command
+    component: azureml:train-linear-regression@latest
+    inputs:
+      training_data: ${{ parent.jobs.prep_train_data.outputs.prepared_data }}
+      test_data: ${{ parent.jobs.prep_test_data.outputs.prepared_data }}
+      registered_model_name: ${{ parent.inputs.registered_model_name }}
+  classification_evaluation:
+    type: command
+    component: azureml:classification-evaluation:1.0.0
+    inputs:
+      test_predictions: ${{ parent.jobs.train_linear_regression.outputs.test_predictions }}
+      test_labels: ${{ parent.inputs.test_labels }}
+    outputs:
+      result_save_path: ${{ parent.outputs.result_save_path }}

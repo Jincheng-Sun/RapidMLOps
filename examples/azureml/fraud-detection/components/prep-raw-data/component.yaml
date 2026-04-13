@@ -1,0 +1,25 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: prep-raw-data
+version: "default"
+description: "Prepares raw data for training"
+display_name: "Prep Raw Data"
+type: command
+
+inputs:
+  raw_data:
+    type: uri_folder
+    description: "Raw data folder"
+
+outputs:
+  prepared_data:
+    type: uri_folder
+    description: "Prepared data folder"
+
+code: .
+command: >
+  python prep_raw_data.py 
+  --raw_data ${{ inputs.raw_data }} 
+  --save_path ${{ outputs.prepared_data }}
+
+environment: azureml:sklearn-train-env@latest
+

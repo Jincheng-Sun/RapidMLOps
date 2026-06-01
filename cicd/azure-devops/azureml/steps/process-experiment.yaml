@@ -1,0 +1,52 @@
+parameters:
+  - name: environment
+    type: string
+  - name: computeName
+    type: string
+    default: ''
+  - name: commitSha
+    type: string
+    default: ''
+  - name: prId
+    type: string
+    default: ''
+  - name: sourceBranch
+    type: string
+    default: ''
+  - name: experimentFolder
+    type: string
+    default: 'experiments'
+
+steps:
+  - script: |
+      echo "Processing Experiments for environment: ${{ parameters.environment }}"
+      
+      # Build the args
+      CMD_ARGS="--environment ${{ parameters.environment }}"
+      
+      if [ -n "${{ parameters.computeName }}" ]; then
+        CMD_ARGS="$CMD_ARGS --compute_name ${{ parameters.computeName }}"
+      fi
+      
+      if [ -n "${{ parameters.commitSha }}" ]; then
+        CMD_ARGS="$CMD_ARGS --commit_sha ${{ parameters.commitSha }}"
+      fi
+      
+      if [ -n "${{ parameters.prId }}" ]; then
+        CMD_ARGS="$CMD_ARGS --pr_id ${{ parameters.prId }}"
+      fi
+      
+      if [ -n "${{ parameters.sourceBranch }}" ]; then
+        CMD_ARGS="$CMD_ARGS --source_branch ${{ parameters.sourceBranch }}"
+      fi
+      
+      if [ -n "${{ parameters.experimentFolder }}" ]; then
+        CMD_ARGS="$CMD_ARGS --experiment_folder ${{ parameters.experimentFolder }}"
+      fi
+      
+      # Execute the Python handler module directly
+      python -m src.rapidmlops.azureml.experiment.handler $CMD_ARGS
+      
+    displayName: 'Parse and Submit Azure ML Experiments'
+    env:
+      PYTHONPATH: $(System.DefaultWorkingDirectory)

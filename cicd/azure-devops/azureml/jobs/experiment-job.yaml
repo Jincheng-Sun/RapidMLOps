@@ -1,0 +1,64 @@
+parameters:
+  - name: environment
+    type: string
+  - name: agentPool
+    type: string
+    default: 'ubuntu-latest'
+  - name: requirementsFile
+    type: string
+  - name: subscriptionId
+    type: string
+  - name: resourceGroup
+    type: string
+  - name: workspaceName
+    type: string
+  - name: computeName
+    type: string
+    default: ''
+  - name: commitSha
+    type: string
+    default: ''
+  - name: prId
+    type: string
+    default: ''
+  - name: sourceBranch
+    type: string
+    default: ''
+  - name: experimentFolder
+    type: string
+    default: 'experiments'
+
+jobs:
+  - job: ProcessExperiment_${{ parameters.environment }}
+    displayName: "Process Experiment (${{ parameters.environment }})"
+    pool:
+      name: ${{ parameters.agentPool }}
+    steps:
+      - checkout: self
+        fetchDepth: 0
+      
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.10'
+          addToPath: true
+      
+      - script: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ parameters.requirementsFile }}
+        displayName: 'Install Dependencies'
+      
+      - template: ../steps/azureml-cli-login.yaml
+        parameters:
+          environment: ${{ parameters.environment }}
+          subscriptionId: ${{ parameters.subscriptionId }}
+          resourceGroup: ${{ parameters.resourceGroup }}
+          workspaceName: ${{ parameters.workspaceName }}
+          
+      - template: ../steps/process-experiment.yaml
+        parameters:
+          environment: ${{ parameters.environment }}
+          computeName: ${{ parameters.computeName }}
+          commitSha: ${{ parameters.commitSha }}
+          prId: ${{ parameters.prId }}
+          sourceBranch: ${{ parameters.sourceBranch }}
+          experimentFolder: ${{ parameters.experimentFolder }}

@@ -18,7 +18,7 @@ outputs:
     type: uri_folder
     description: "Metrics folder"
 
-code: .
+code: ../
 command: >
   python classification_evaluation.py 
   --test_predictions ${{ inputs.test_predictions }} 

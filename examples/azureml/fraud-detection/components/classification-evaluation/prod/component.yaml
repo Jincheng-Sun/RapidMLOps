@@ -1,0 +1,28 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: classification-evaluation
+version: "default"
+description: "Evaluates a classification model"
+display_name: "Classification Evaluation"
+type: command
+
+inputs:
+  test_predictions:
+    type: uri_folder
+    description: "Test predictions folder"
+  test_labels:
+    type: uri_folder
+    description: "Test labels folder"
+
+outputs:
+  result_save_path:
+    type: uri_folder
+    description: "Metrics folder"
+
+code: ../
+command: >
+  python classification_evaluation.py 
+  --test_predictions ${{ inputs.test_predictions }} 
+  --test_labels ${{ inputs.test_labels }} 
+  --result_save_path ${{ outputs.result_save_path }}
+
+environment: azureml:sklearn-train-env@latest

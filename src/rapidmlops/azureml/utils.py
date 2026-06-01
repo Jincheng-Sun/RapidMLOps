@@ -1,5 +1,4 @@
 import time
-import logging
 
 from azure.identity import AzureCliCredential
 from azure.ai.ml import MLClient
@@ -36,6 +35,7 @@ def get_ml_client(
         MLClient: The session with Azure Machine Learning workspace.
     """
     logger = get_logger(logger_name)
+    # TODO: Based on the execution environment, choose the appropriate credential
 
     for i in range(retry_times):
         try:

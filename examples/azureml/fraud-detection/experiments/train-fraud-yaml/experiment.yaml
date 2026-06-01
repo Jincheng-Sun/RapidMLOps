@@ -1,29 +1,37 @@
-$schema: https://azuremlschemas.azureedge.net/latest/pipelineComponent.schema.json
-
-name: end-to-end-pipeline
-version: 1.0.0
-display_name: End-to-End Pipeline
-description: End-to-End linear regression with cross-validation training and model evaluation pipeline
+# https://learn.microsoft.com/en-us/azure/machine-learning/reference-yaml-job-pipeline?view=azureml-api-2
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
+name: train-fraud-yaml
+display_name: train-fraud-yaml
+experiment_name: train-fraud-yaml
+tags:
+  environment: dev
+
+settings:
+  default_compute: azureml:cpu-cluster
+  default_datastore: azureml:workspaceblobstore
+  force_rerun: true
 
 inputs:
-  training_data: 
+  training_data:
     type: uri_folder
-  test_data: 
+    path: azureml:fraud-train-data@latest
+  test_data:
     type: uri_folder
-  test_labels: 
+    path: azureml:fraud-test-data@latest
+  test_labels:
     type: uri_folder
-  registered_model_name: 
-    type: string
+    path: azureml://datastores/workspaceblobstore/paths/fraud-detection/input/test_labels
+  registered_model_name: dummy-model-name
 
 outputs:
   result_save_path:
     type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/fraud-detection/output/result_save_path
 
 jobs:
   prep_train_data:
     type: command
-    # component: azureml://registries/<registry_name>/components/prep-raw-data/versions/<version_id>
     component: azureml:prep-raw-data@latest
     inputs:
       raw_data: ${{ parent.inputs.training_data }}

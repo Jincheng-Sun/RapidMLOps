@@ -17,7 +17,8 @@ def handle_component_gitops(
     component_folder="components",
     component_config_file="component.yaml",
 ):
-    """Handles component changes based on git status with Two-Pass Topological sorting.
+    """Handles component changes based on git status, processing command
+    components first, then pipeline components.
 
     Args:
         environment (str): The target environment (e.g., dev, prod).
@@ -29,14 +30,12 @@ def handle_component_gitops(
     """
     changes = get_git_changes()
 
-    # The pattern explicitly avoids matching the 'environment' in component paths
-    # because components are typically shared across environments (workspace level isolation not required natively, 
-    # but we can adhere strictly to the pattern if components are environment specific.
-    
     # Matches either a global component OR an environment-specific component.
     # Ex 1: components/prep-raw-data/component.yaml  (Applies to ALL environments)
     # Ex 2: components/prep-raw-data/prod/component.yaml (Applies ONLY to prod environment)
-    pattern = re.compile(rf"{component_folder}/([^/]+)/(?:{environment}/)?{component_config_file}$")
+    pattern = re.compile(
+        rf"{component_folder}/([^/]+)/(?:{environment}/)?{component_config_file}$"
+    )
 
     command_creates = []
     pipeline_creates = []
@@ -52,38 +51,42 @@ def handle_component_gitops(
 
         if status in ["A", "M"]:
             # Peep the YAML to determine type for topological sorting
-            comp_type = "command"
-            try:
-                with open(file_path, "r") as f:
-                    data = yaml.safe_load(f)
-                    comp_type = data.get("type", "command")
-            except Exception as e:
-                logger.warning(f"Could not parse type for {file_path}, defaulting to command: {e}")
+            with open(file_path, "r") as f:
+                data = yaml.safe_load(f)
+                comp_type = data.get("type", "command")
 
             if comp_type == "pipeline":
                 pipeline_creates.append((file_path, asset_name))
             else:
+                # Command or Spark Component
                 command_creates.append((file_path, asset_name))
-                
+
         elif status == "D":
             archives.append(asset_name)
 
     processed_count = 0
 
-    # Pass 1: Command Components (Foundation)
+    # Archive Components
+    for asset_name in archives:
+        logger.info(
+            f"Archiving Component: {asset_name} (Warning: default version archived)"
+        )
+        archive_component(name=asset_name, version=None)
+        processed_count += 1
+
+    # Register Command Components First
     for file_path, asset_name in command_creates:
         logger.info(f"Creating/Updating Command Component: {asset_name}")
         create_or_update_component(
             component_config_path=file_path,
-            name=asset_name, # Overrides might not be needed if yaml natively defines it, but passed for consistency
+            name=asset_name,
             commit_sha=commit_sha,
             pr_id=pr_id,
             source_branch=source_branch,
-            registry_name=registry_name,
         )
         processed_count += 1
 
-    # Pass 2: Pipeline Components (Which depend on Commands)
+    # Register Pipeline Components
     for file_path, asset_name in pipeline_creates:
         logger.info(f"Creating/Updating Pipeline Component: {asset_name}")
         create_or_update_component(
@@ -92,14 +95,7 @@ def handle_component_gitops(
             commit_sha=commit_sha,
             pr_id=pr_id,
             source_branch=source_branch,
-            registry_name=registry_name,
         )
-        processed_count += 1
-
-    # Pass 3: Archiving
-    for asset_name in archives:
-        logger.info(f"Archiving Component: {asset_name} (Warning: default version archived)")
-        archive_component(name=asset_name, version=None)
         processed_count += 1
 
     if processed_count == 0:
@@ -114,7 +110,7 @@ if __name__ == "__main__":
     parser.add_argument("--source_branch", type=str)
     parser.add_argument("--component_folder", type=str, default="components")
     parser.add_argument("--component_config_file", type=str, default="component.yaml")
-    
+
     args = parser.parse_args()
 
     handle_component_gitops(

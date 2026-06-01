@@ -176,3 +176,5 @@ cython_debug/
 # Terraform modules
 **/.terraform/*
 **/.terraform.lock.hcl
+
+*.txt

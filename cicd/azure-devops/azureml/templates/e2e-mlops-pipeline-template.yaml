@@ -117,6 +117,11 @@ stages:
           subscriptionId: $(subscriptionId)
           resourceGroup: $(resourceGroup)
           workspaceName: $(workspaceName)
+          computeName: $(computeName)
+          commitSha: $(Build.SourceVersion)
+          prId: $(System.PullRequest.PullRequestId)
+          sourceBranch: $(Build.SourceBranchName)
+          experimentFolder: $(experimentFolder)
   
   - stage: ProcessEndpoint
     displayName: "Process Endpoint Stage"
